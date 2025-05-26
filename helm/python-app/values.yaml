@@ -1,0 +1,12 @@
+replicaCount: 1
+
+image:
+  repository: 301760329762.dkr.ecr.eu-central-1.amazonaws.com/dev-flask-crud-repo
+  tag: "latest"
+  pullPolicy: IfNotPresent
+
+service:
+  type: NodePort
+  port: 80
+
+containerPort: 5000

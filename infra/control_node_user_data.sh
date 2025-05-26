@@ -43,7 +43,7 @@ chown ubuntu:ubuntu "$KEY_PATH"
 # Create ansible directory and download playbooks from S3
 ANSIBLE_DIR="/home/ubuntu/ansible"
 mkdir -p "$ANSIBLE_DIR"
-aws s3 cp --recursive s3://eb-do-ansible-playbooks/playbooks/ "$ANSIBLE_DIR/"
+aws s3 cp --recursive s3://eb-do-ansible-playbooks/ansible/ "$ANSIBLE_DIR/"
 
 # Set ownership for the ansible directory
 chown -R ubuntu:ubuntu "$ANSIBLE_DIR"
