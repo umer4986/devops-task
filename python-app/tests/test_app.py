@@ -7,7 +7,6 @@ def client():
     """Set up Flask test client and reset items list for each test."""
     flask_app.config['TESTING'] = True
     with flask_app.test_client() as client:
-        # Reset the global items list before each test
         flask_app.items = []
         yield client
 
@@ -91,4 +90,3 @@ def test_delete_item_not_found(client):
     response = client.get('/delete/2')
     assert response.status_code == 302
     assert len(flask_app.items) == 1
-
