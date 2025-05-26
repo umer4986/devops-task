@@ -1,0 +1,6 @@
+control_node_public_ip = "3.68.93.18"
+db_instance_private_ip = "10.0.3.148"
+worker_nodes_private_ips = [
+  "10.0.3.35",
+  "10.0.4.107",
+]

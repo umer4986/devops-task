@@ -1,0 +1,14 @@
+# Ignore Terraform state
+infra/terraform.tfstate
+infra/terraform.tfstate.backup
+infra/.terraform/
+infra/.terraform.lock.hcl
+
+# Ignore variable files if they contain sensitive data
+infra/*.tfvars
+
+# Ignore local override files
+infra/override.tf
+infra/override.tf.json
+infra/*_override.tf
+infra/*_override.tf.json

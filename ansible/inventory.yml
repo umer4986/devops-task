@@ -1,0 +1,9 @@
+[controller]
+controller ansible_host=localhost ansible_user=ubuntu ansible_ssh_private_key_file=/home/ubuntu/devops-task.pem
+
+[workers]
+worker1 ansible_host=10.0.3.35 ansible_user=ubuntu ansible_ssh_private_key_file=/home/ubuntu/devops-task.pem
+worker2 ansible_host=10.0.4.107 ansible_user=ubuntu ansible_ssh_private_key_file=/home/ubuntu/devops-task.pem
+
+[all:vars]
+ansible_python_interpreter=/usr/bin/python3
