@@ -1,0 +1,112 @@
+---
+- name: Common setup for all nodes
+  hosts: all
+  become: yes
+  tasks:
+  - name: Update apt cache
+    apt:
+      update_cache: yes
+      cache_valid_time: 3600
+
+  - name: Install required packages
+    apt:
+      name:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - gnupg
+      - lsb-release
+      state: present
+
+  - name: Disable swap
+    shell: swapoff -a
+    when: ansible_swaptotal_mb > 0
+
+  - name: Remove swap from fstab
+    lineinfile:
+      path: /etc/fstab
+      regexp: '^.*swap.*'
+      state: absent
+
+  - name: Load br_netfilter kernel module
+    modprobe:
+      name: br_netfilter
+      state: present
+
+  - name: Ensure br_netfilter is loaded on boot
+    lineinfile:
+      path: /etc/modules-load.d/k8s.conf
+      line: br_netfilter
+      create: yes
+
+  - name: Enable IP forwarding
+    sysctl:
+      name: net.ipv4.ip_forward
+      value: '1'
+      state: present
+      sysctl_set: yes
+      reload: yes
+
+  - name: Enable bridge-nf-call-iptables
+    sysctl:
+      name: net.bridge.bridge-nf-call-iptables
+      value: '1'
+      state: present
+      sysctl_set: yes
+      reload: yes
+
+  - name: Install containerd
+    apt:
+      name: containerd
+      state: present
+
+  - name: Create containerd configuration directory
+    file:
+      path: /etc/containerd
+      state: directory
+
+  - name: Configure containerd
+    shell: containerd config default > /etc/containerd/config.toml
+    args:
+      creates: /etc/containerd/config.toml
+
+  - name: Enable SystemdCgroup in containerd
+    lineinfile:
+      path: /etc/containerd/config.toml
+      regexp: 'SystemdCgroup ='
+      line: '            SystemdCgroup = true'
+      insertafter: '\[plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc.options\]'
+
+  - name: Restart containerd
+    service:
+      name: containerd
+      state: restarted
+      enabled: yes
+
+  - name: Add Kubernetes apt key
+    apt_key:
+      url: https://pkgs.k8s.io/core:/stable:/v1.29/deb/Release.key
+      state: present
+
+  - name: Add Kubernetes apt repository
+    apt_repository:
+      repo: deb https://pkgs.k8s.io/core:/stable:/v1.29/deb/ /
+      state: present
+      filename: kubernetes
+
+  - name: Install Kubernetes packages
+    apt:
+      name:
+      - kubeadm=1.29.8-1.1
+      - kubelet=1.29.8-1.1
+      - kubectl=1.29.8-1.1
+      state: present
+
+  - name: Hold Kubernetes packages
+    dpkg_selections:
+      name: "{{ item }}"
+      selection: hold
+    loop:
+    - kubeadm
+    - kubelet
+    - kubectl

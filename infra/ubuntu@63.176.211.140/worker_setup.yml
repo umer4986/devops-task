@@ -1,0 +1,15 @@
+---
+- name: Setup Kubernetes worker nodes
+  hosts: workers
+  become: yes
+  tasks:
+  - name: Copy join command to worker nodes
+    copy:
+      src: ./join-command.sh
+      dest: /home/ubuntu/join-command.sh
+      mode: '0755'
+
+  - name: Join worker to cluster
+    shell: /home/ubuntu/join-command.sh
+    args:
+      creates: /etc/kubernetes/kubelet.conf

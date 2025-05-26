@@ -1,0 +1,53 @@
+---
+- name: Deploy simple httpd app with NodePort service
+  hosts: controller
+  become: yes
+  become_user: ubuntu
+  tasks:
+    - name: Apply httpd deployment and NodePort service
+      shell: |
+        kubectl apply -f - <<EOF
+        apiVersion: apps/v1
+        kind: Deployment
+        metadata:
+          name: httpd-simple
+        spec:
+          replicas: 2
+          selector:
+            matchLabels:
+              app: httpd-simple
+          template:
+            metadata:
+              labels:
+                app: httpd-simple
+            spec:
+              containers:
+              - name: httpd
+                image: httpd:latest
+                ports:
+                - containerPort: 80
+        ---
+        apiVersion: v1
+        kind: Service
+        metadata:
+          name: httpd-simple-service
+        spec:
+          selector:
+            app: httpd-simple
+          ports:
+            - protocol: TCP
+              port: 80
+              targetPort: 80
+              nodePort: 30080
+          type: NodePort
+        EOF
+      environment:
+        KUBECONFIG: /home/ubuntu/.kube/config
+
+    - name: Verify NodePort accessibility
+      shell: |
+        curl --fail http://localhost:30080
+      environment:
+        KUBECONFIG: /home/ubuntu/.kube/config
+      register: curl_result
+      failed_when: curl_result.rc != 0
