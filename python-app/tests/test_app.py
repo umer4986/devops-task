@@ -15,7 +15,6 @@ def client():
 def test_index_empty(client):
     """Test the index route with no items."""
     response = client.get('/')
-    # Assumes index.html shows 'No items' when empty
     assert response.status_code == 200
     assert b'No items' in response.data
 
@@ -76,11 +75,13 @@ def test_edit_item_post_empty_name(client):
 
 def test_delete_item(client):
     """Test deleting an item."""
-    flask_app.items = [{'id': 1, 'name': 'Item 1'}, {'id': 2, 'name': 'Item 2'}]
+    flask_app.items = [
+        {'id': 1, 'name': 'Item 1'},
+        {'id': 2, 'name': 'Item 2'}
+    ]
     response = client.get('/delete/1')
     assert response.status_code == 302
     assert len(flask_app.items) == 1
-    # IDs reassigned
     assert flask_app.items[0] == {'id': 1, 'name': 'Item 2'}
 
 
@@ -90,3 +91,4 @@ def test_delete_item_not_found(client):
     response = client.get('/delete/2')
     assert response.status_code == 302
     assert len(flask_app.items) == 1
+
