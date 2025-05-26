@@ -1,6 +1,6 @@
-output "control_node_public_ip" {
-  value       = aws_instance.control_node.public_ip
-  description = "Public IP of the control node"
+output "control_node_eip" {
+  value       = aws_eip.control_node_eip.public_ip
+  description = "Elastic IP address of the control node"
 }
 
 output "worker_nodes_private_ips" {
