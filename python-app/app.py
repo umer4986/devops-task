@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for
 
 app = Flask(__name__)
 
-# Simple in-memory "database" of items
+# Simple in-memory "database" of items :
 items = []
 
 
