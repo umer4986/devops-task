@@ -4,12 +4,8 @@ upstream app1_backend {
 }
 
 upstream app2_backend {
-    server 10.0.3.122:30081;
-    server 10.0.4.23:30081;
-}
-
-upstream grafana_backend {
-    server 127.0.0.1:30000;
+    server 10.0.3.122:30306;
+    server 10.0.4.23:30306;
 }
 
 server {
@@ -31,14 +27,5 @@ server {
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
         rewrite ^/app2/(.*) /$1 break;
-    }
-
-    location /grafana/ {
-        proxy_pass http://grafana_backend/;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        rewrite ^/grafana/(.*) /$1 break;
     }
 }
