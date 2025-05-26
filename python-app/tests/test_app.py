@@ -15,8 +15,9 @@ def client():
 def test_index_empty(client):
     """Test the index route with no items."""
     response = client.get('/')
+    # Assumes index.html shows 'No items' when empty
     assert response.status_code == 200
-    assert b'No items' in response.data  # Assumes index.html shows 'No items' when empty
+    assert b'No items' in response.data
 
 
 def test_index_with_items(client):
@@ -24,13 +25,13 @@ def test_index_with_items(client):
     flask_app.items = [{'id': 1, 'name': 'Item 1'}]
     response = client.get('/')
     assert response.status_code == 200
-    assert b'Item 1' in response.data  # Assumes index.html renders item names
+    assert b'Item 1' in response.data
 
 
 def test_add_item(client):
     """Test adding an item via POST."""
     response = client.post('/add', data={'name': 'Test Item'})
-    assert response.status_code == 302  # Redirect to index
+    assert response.status_code == 302
     assert len(flask_app.items) == 1
     assert flask_app.items[0] == {'id': 1, 'name': 'Test Item'}
 
@@ -38,8 +39,8 @@ def test_add_item(client):
 def test_add_item_empty_name(client):
     """Test adding an item with empty name."""
     response = client.post('/add', data={'name': ''})
-    assert response.status_code == 302  # Redirect to index
-    assert len(flask_app.items) == 0  # No item added
+    assert response.status_code == 302
+    assert len(flask_app.items) == 0
 
 
 def test_edit_item_get(client):
@@ -47,13 +48,13 @@ def test_edit_item_get(client):
     flask_app.items = [{'id': 1, 'name': 'Item 1'}]
     response = client.get('/edit/1')
     assert response.status_code == 200
-    assert b'Item 1' in response.data  # Assumes edit.html renders item name
+    assert b'Item 1' in response.data
 
 
 def test_edit_item_get_not_found(client):
     """Test GET request to edit a non-existent item."""
     response = client.get('/edit/1')
-    assert response.status_code == 302  # Redirect to index
+    assert response.status_code == 302
     assert len(flask_app.items) == 0
 
 
@@ -61,7 +62,7 @@ def test_edit_item_post(client):
     """Test POST request to update an item."""
     flask_app.items = [{'id': 1, 'name': 'Item 1'}]
     response = client.post('/edit/1', data={'name': 'Updated Item'})
-    assert response.status_code == 302  # Redirect to index
+    assert response.status_code == 302
     assert flask_app.items[0]['name'] == 'Updated Item'
 
 
@@ -69,23 +70,23 @@ def test_edit_item_post_empty_name(client):
     """Test POST request to edit with empty name."""
     flask_app.items = [{'id': 1, 'name': 'Item 1'}]
     response = client.post('/edit/1', data={'name': ''})
-    assert response.status_code == 302  # Redirect to index
-    assert flask_app.items[0]['name'] == 'Item 1'  # Name unchanged
+    assert response.status_code == 302
+    assert flask_app.items[0]['name'] == 'Item 1'
 
 
 def test_delete_item(client):
     """Test deleting an item."""
     flask_app.items = [{'id': 1, 'name': 'Item 1'}, {'id': 2, 'name': 'Item 2'}]
     response = client.get('/delete/1')
-    assert response.status_code == 302  # Redirect to index
+    assert response.status_code == 302
     assert len(flask_app.items) == 1
-    assert flask_app.items[0] == {'id': 1, 'name': 'Item 2'}  # IDs reassigned
+    # IDs reassigned
+    assert flask_app.items[0] == {'id': 1, 'name': 'Item 2'}
 
 
 def test_delete_item_not_found(client):
     """Test deleting a non-existent item."""
     flask_app.items = [{'id': 1, 'name': 'Item 1'}]
     response = client.get('/delete/2')
-    assert response.status_code == 302  # Redirect to index
+    assert response.status_code == 302
     assert len(flask_app.items) == 1
-
