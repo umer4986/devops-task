@@ -1,9 +1,3 @@
-resource "aws_iam_instance_profile" "ec2_ssm_profile" {
-  name = "ec2_ssm_instance_profile"
-  role = aws_iam_role.ec2_ssm_role.name
-}
-
-
 resource "aws_iam_role" "ec2_ssm_role" {
   name = "ec2_ssm_access_role"
 
@@ -18,6 +12,7 @@ resource "aws_iam_role" "ec2_ssm_role" {
     }]
   })
 }
+
 
 resource "aws_iam_role_policy" "ssm_policy" {
   name = "ssm_full_access_policy"
@@ -40,30 +35,10 @@ resource "aws_iam_role_policy" "ssm_policy" {
   })
 }
 
-
-resource "aws_security_group" "control_sg" {
-  name        = "${var.environment}-control-sg"
-  description = "Security group for Kubernetes control plane"
-  vpc_id      = aws_vpc.main.id
-
-  # SSH from anywhere (you can restrict to your IP or VPN)
- # Allow all inbound traffic from the VPC CIDR (replace with your actual VPC CIDR)
-  ingress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"] # e.g. "10.0.0.0/16"
-  }
-
-  # Allow all outbound traffic
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+resource "aws_iam_instance_profile" "ec2_ssm_profile" {
+  name = "ec2_ssm_instance_profile"
+  role = aws_iam_role.ec2_ssm_role.name
 }
-
 
 resource "aws_instance" "control_node" {
   ami                    = "ami-03250b0e01c28d196"
@@ -115,7 +90,6 @@ user_data = <<-EOF
             # Optional logging
             echo "[INFO] AWS CLI v2, Ansible, and PEM key setup completed" >> /var/log/user-data.log
             EOF
-
 
   tags = {
     Name = "${var.environment}-control-node"

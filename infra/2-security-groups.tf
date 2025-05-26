@@ -1,3 +1,28 @@
+
+resource "aws_security_group" "control_sg" {
+  name        = "${var.environment}-control-sg"
+  description = "Security group for Kubernetes control plane"
+  vpc_id      = aws_vpc.main.id
+
+  # SSH from anywhere (you can restrict to your IP or VPN)
+ # Allow all inbound traffic from the VPC CIDR (replace with your actual VPC CIDR)
+  ingress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"] # e.g. "10.0.0.0/16"
+  }
+
+  # Allow all outbound traffic
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+
 resource "aws_security_group" "worker_sg" {
   name        = "${var.environment}-worker-sg"
   description = "Security group for Kubernetes worker nodes"
@@ -41,37 +66,5 @@ resource "aws_security_group" "worker_sg" {
     to_port     = 0
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
-  }
-}
-
-resource "aws_instance" "worker_node_1" {
-  ami                    = "ami-03250b0e01c28d196"
-  instance_type          = "t2.small"
-  subnet_id              = aws_subnet.private_1.id
-  vpc_security_group_ids = [aws_security_group.worker_sg.id]
-  key_name               = aws_key_pair.deployer.key_name
-
-  root_block_device {
-    volume_size = 25
-  }
-
-  tags = {
-    Name = "${var.environment}-worker-node-1"
-  }
-}
-
-resource "aws_instance" "worker_node_2" {
-  ami                    = "ami-03250b0e01c28d196"
-  instance_type          = "t2.small"
-  subnet_id              = aws_subnet.private_2.id
-  vpc_security_group_ids = [aws_security_group.worker_sg.id]
-  key_name               = aws_key_pair.deployer.key_name
-
-  root_block_device {
-    volume_size = 25
-  }
-
-  tags = {
-    Name = "${var.environment}-worker-node-2"
   }
 }
