@@ -68,3 +68,23 @@ resource "aws_security_group" "worker_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 }
+
+resource "aws_security_group_rule" "worker_nodeport" {
+  security_group_id = aws_security_group.worker_sg.id
+  type              = "ingress"
+  from_port         = 30000
+  to_port           = 32767
+  protocol          = "tcp"
+  cidr_blocks       = ["0.0.0.0/0"]  # Restrict to your IP for security, e.g., ["<your-ip>/32"]
+  description       = "Allow NodePort range for Kubernetes services"
+}
+
+resource "aws_security_group_rule" "control_nodeport" {
+  security_group_id = aws_security_group.control_sg.id
+  type              = "ingress"
+  from_port         = 30000
+  to_port           = 32767
+  protocol          = "tcp"
+  cidr_blocks       = ["0.0.0.0/0"]  # Restrict to your IP, e.g., ["<your-ip>/32"]
+  description       = "Allow NodePort range for Kubernetes services"
+}
